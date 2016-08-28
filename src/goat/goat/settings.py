@@ -50,6 +50,8 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 100
 }
 
+AUTH_USER_MODEL = "main.UserProfile"
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',

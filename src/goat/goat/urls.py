@@ -16,7 +16,20 @@ Including another URLconf
 from django.conf.urls import url, include
 from django.contrib import admin
 
+from main.views import *
+
+from rest_framework import routers
+
+router = routers.DefaultRouter()
+router.register(r'users', UserListView, base_name='user')
+router.register(r'characters', CharacterListView, base_name='character')
+router.register(r'raids', RaidsListView, base_name='raids')
+router.register(r'bosses', BossListView, base_name='bosses')
+router.register(r'raidbosses/(?P<raidid>[0-9]+)', RaidbossListView, base_name='raidbosses')
+
 urlpatterns = [
+    url(r'^', include(router.urls)),
     url(r'^admin/', admin.site.urls),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework'))
+
 ]

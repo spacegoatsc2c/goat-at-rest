@@ -1,13 +1,16 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractUser
 from django.conf import settings
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from rest_framework.authtoken.models import Token
 
 # Create your models here.
+class UserProfile(AbstractUser):
+    main = models.ForeignKey("Character", null=True, blank=True)
+
 class Character(models.Model):
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(UserProfile)
     name = models.CharField(max_length=50)
     realm = models.CharField(max_length=50)
     ilvl = models.IntegerField()
@@ -50,7 +53,7 @@ class Boss(models.Model):
 
 class Article(models.Model):
     article_type = models.CharField(max_length=50)
-    author = models.ForeignKey(User)
+    author = models.ForeignKey(UserProfile)
     tags = models.CharField(max_length=50, null=True, blank=True)
     boss = models.ForeignKey(Boss, null=True, blank=True)
     character = models.ForeignKey(Character, null=True, blank=True)
