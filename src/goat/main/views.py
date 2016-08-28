@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from rest_framework import viewsets, generics
 from rest_framework.response import Response
+from rest_framework.authentication import TokenAuthentication
 
 from main.models import *
 from main.serializers import *
@@ -10,6 +11,23 @@ from main.serializers import *
 class UserListView(viewsets.ModelViewSet):
     queryset = UserProfile.objects.all()
     serializer_class = UserSerializer
+
+class UserView(viewsets.ViewSet):
+    authentication_classes = (TokenAuthentication,)
+
+    def get(self, request):
+        if request.user:
+            serializer = UserSerializer(request.user)
+            return Response(serializer.data)
+        else:
+            return Response()
+
+    def list(self, request):
+        if request.user:
+            serializer = UserSerializer(request.user)
+            return Response(serializer.data)
+        else:
+            return Response()
 
 class CharacterListView(viewsets.ReadOnlyModelViewSet):
     queryset = Character.objects.all()
@@ -48,27 +66,47 @@ class CurrentBossListView(viewsets.ReadOnlyModelViewSet):
 class ArticlesListView(viewsets.ModelViewSet):
     queryset = Article.objects.all()
     serializer_class = ArticleSerializer
+    authentication_classes = (TokenAuthentication,)
 
     def create(self, request):
-        # {'author': {'username': 'Bob', 'id': 1}, 'article_type': 'text', 'text': 'Hello World'  }
-        data = request.data
+        if(request.user):
+            # {'author': {'username': 'Bob', 'id': 1}, 'article_type': 'text', 'text': 'Hello World'  }
+            data = request.data
 
-        # get the user TODO: this should just use the current logged in user!
-        author = UserProfile.objects.get(pk=data['author']['id'])
+            # get the user TODO: this should just use the current logged in user!
+            author = UserProfile.objects.get(pk=request.user.id)
 
-        # get the boss
-        boss = Boss.objects.get(pk=data['boss']['id'])
+            # get the boss
+            boss = None
+            if('boss' in data.keys()):
+                boss = Boss.objects.get(pk=data['boss']['id'])
 
-        # get the character
-        char = Character.objects.get(pk=data['character']['id'])
+            # get the character
+            char = None
+            if('character' in data.keys()):
+                char = Character.objects.get(pk=data['character']['id'])
 
-        # build the Article
-        article = Article(author=author, article_type=data['article_type'],
-                          text=data['text'],
-                          tags=data['tags'],
-                          boss=boss,
-                          character=char
-                          )
+            tags = None
+            if('tags' in data.keys()):
+                tags = data['tags']
+
+            text = None
+            if('text' in data.keys()):
+                text = data['text']
+
+            link = None
+            if('link' in data.keys()):
+                link = data['link']
+
+
+            # build the Article
+            article = Article(author=author, article_type=data['article_type'],
+                              text=text,
+                              tags=tags,
+                              boss=boss,
+                              character=char,
+                              link=link
+                              )
 
 
         article.save()

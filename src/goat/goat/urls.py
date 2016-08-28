@@ -19,11 +19,13 @@ from django.contrib import admin
 from main.views import *
 
 from rest_framework import routers
+from rest_framework.authtoken import views
 
 router = routers.DefaultRouter()
 #router.register(r'users', UserListView)
 router.register(r'characters', CharacterListView, base_name='character')
 router.register(r'users', UserListView)
+router.register(r'user', UserView, base_name='user')
 router.register(r'raids', RaidsListView, base_name='raids')
 router.register(r'bosses', BossListView, base_name='bosses')
 router.register(r'articles', ArticlesListView)
@@ -34,6 +36,7 @@ router.register(r'raidbosses/(?P<raidid>[0-9]+)', RaidbossListView, base_name='r
 urlpatterns = [
     url(r'^', include(router.urls)),
     url(r'^admin/', admin.site.urls),
+    url(r'^auth/', views.obtain_auth_token),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework'))
 
 ]
