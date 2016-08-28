@@ -17,7 +17,7 @@ class Character(models.Model):
     tradeskill1 = models.CharField(max_length=50, null=True, blank=True)
     tradeskill2 = models.CharField(max_length=50, null=True, blank=True)
     wowclass = models.CharField(max_length=50)
-    portrait = models.CharField(max_length=50)
+    portrait = models.CharField(max_length=2000)
 
     def __str__(self):
         return "{} of {}, ilvl {}".format(
@@ -28,7 +28,7 @@ class Character(models.Model):
 
 class Raid(models.Model):
     name = models.CharField(max_length=50)
-    logo = models.CharField(max_length=50)
+    logo = models.CharField(max_length=2000)
     tier = models.IntegerField(unique=True)
 
     def __str__(self):
@@ -40,9 +40,9 @@ class Raid(models.Model):
 class Boss(models.Model):
     raid = models.ForeignKey(Raid)
     name = models.CharField(max_length=50)
-    logo = models.CharField(max_length=50)
+    logo = models.CharField(max_length=2000)
     is_dead = models.BooleanField(default=False)
-    guide = models.CharField(max_length=50, null=True, blank=True)
+    guide = models.CharField(max_length=2000, null=True, blank=True)
     ordering = models.IntegerField()
 
     def __str__(self):
