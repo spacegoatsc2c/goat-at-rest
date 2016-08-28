@@ -21,10 +21,14 @@ from main.views import *
 from rest_framework import routers
 
 router = routers.DefaultRouter()
-router.register(r'users', UserListView, base_name='user')
+#router.register(r'users', UserListView)
 router.register(r'characters', CharacterListView, base_name='character')
+router.register(r'users', UserListView)
 router.register(r'raids', RaidsListView, base_name='raids')
 router.register(r'bosses', BossListView, base_name='bosses')
+router.register(r'articles', ArticlesListView)
+router.register(r'current-articles', CurrentArticlesListView, base_name='current-articles')
+router.register(r'current-boss', CurrentBossListView, base_name='current-boss')
 router.register(r'raidbosses/(?P<raidid>[0-9]+)', RaidbossListView, base_name='raidbosses')
 
 urlpatterns = [

@@ -8,6 +8,11 @@ class UserSerializer(serializers.ModelSerializer):
         model = UserProfile
         fields = ('id', 'username')
 
+    def create(self, user):
+        # never create a user, but return one if it exists
+        print(user)
+        return UserProfile()
+
 
 class CharacterSerializer(serializers.ModelSerializer):
     user = UserSerializer()
@@ -23,3 +28,16 @@ class RaidsSerializer(serializers.ModelSerializer):
 class BossSerializer(serializers.ModelSerializer):
     class Meta:
         model = Boss
+
+class ArticleSerializer(serializers.ModelSerializer):
+    author = UserSerializer()
+
+    class Meta:
+        model = Article
+        depth = 1
+
+    def create(self, article):
+        print(article)
+        #return Article(**article)
+        return Article()
+
