@@ -64,9 +64,11 @@ class Article(models.Model):
         return "[{}] ({}) {}...".format(
             self.article_type,
             self.author,
-            self.text[:15],
+            str(self.text)[:15],
         )
 
+class Image(models.Model):
+    location = models.CharField(max_length=2083)
 
 # Create user tokens
 @receiver(post_save, sender=settings.AUTH_USER_MODEL)

@@ -1,3 +1,4 @@
+import shutil
 from django.shortcuts import render
 from rest_framework import viewsets, generics
 from rest_framework.response import Response
@@ -5,6 +6,7 @@ from rest_framework.authentication import TokenAuthentication
 
 from main.models import *
 from main.serializers import *
+from main.management.commands.characterupdate import update_character
 
 # Create your views here.
 
@@ -29,9 +31,28 @@ class UserView(viewsets.ViewSet):
         else:
             return Response()
 
-class CharacterListView(viewsets.ReadOnlyModelViewSet):
+class CharacterListView(viewsets.ModelViewSet):
     queryset = Character.objects.all()
     serializer_class = CharacterSerializer
+
+    def create(self, request):
+        data = request.data
+        print(data)
+        
+        # TODO: This should be getting the currently-logged-in user, I think?
+        
+        user = UserProfile.objects.get(id=data['userid'])
+
+        char = Character()
+        char.name = data['name']
+        char.realm = data['realm']
+        char.user = user
+
+        update_character(char)  # saves it too
+        
+
+        serializer = CharacterSerializer(char)
+        return Response(serializer.data)
 
 class RaidsListView(viewsets.ReadOnlyModelViewSet):
     queryset = Raid.objects.all().order_by('-tier')
@@ -58,23 +79,26 @@ class CurrentBossListView(viewsets.ReadOnlyModelViewSet):
         # highest level dead boss, highest being based on tier and ordering
         latest_tier = Raid.objects.all().order_by('-tier')[0]
         candidates = Boss.objects.filter(raid=latest_tier, is_dead=True).order_by("-ordering")
-        if len(candidates) > 0:
+
+        if candidates is not None and len(candidates) > 0:
             return candidates[:1]
         else:
-            return None
+            return Boss.objects.none()
 
 class ArticlesListView(viewsets.ModelViewSet):
     queryset = Article.objects.all()
     serializer_class = ArticleSerializer
     authentication_classes = (TokenAuthentication,)
+    filter_fields = ('id', 'boss__id', 'boss__name', 
+                     'character__id', 'character__name')
 
     def create(self, request):
         if(request.user):
-            # {'author': {'username': 'Bob', 'id': 1}, 'article_type': 'text', 'text': 'Hello World'  }
             data = request.data
+            print(data)
 
             # get the user TODO: this should just use the current logged in user!
-            author = UserProfile.objects.get(pk=request.user.id)
+            author = UserProfile.objects.get(id=request.user.id)
 
             # get the boss
             boss = None
@@ -117,3 +141,22 @@ class CurrentArticlesListView(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         return Article.objects.all().order_by("-id")[:10]
+
+
+
+
+class ImagesListView(viewsets.ModelViewSet):
+    queryset = Image.objects.all()
+    serializer_class = ImageSerializer
+    authentication_classes = (TokenAuthentication,)
+
+    def create(self, request):
+        data = request.data
+        print(data)
+
+        temp_path = data['path']
+        orig_filename = data['name']
+
+        shutil.copyfile(temp_path, "/home/quasar/test-images/{}".format(orig_filename))
+
+        return Response({"location": "/img/{}".format(orig_filename)})

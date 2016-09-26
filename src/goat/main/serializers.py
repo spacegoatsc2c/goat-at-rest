@@ -41,3 +41,6 @@ class ArticleSerializer(serializers.ModelSerializer):
         #return Article(**article)
         return Article()
 
+class ImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Image
