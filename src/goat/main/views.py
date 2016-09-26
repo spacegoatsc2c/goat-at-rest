@@ -32,7 +32,7 @@ class UserView(viewsets.ViewSet):
             return Response()
 
 class CharacterListView(viewsets.ModelViewSet):
-    queryset = Character.objects.all()
+    queryset = Character.objects.all().order_by('-ilvl', 'name')
     serializer_class = CharacterSerializer
 
     def create(self, request):
